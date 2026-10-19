@@ -8,6 +8,15 @@ data:
   root: ./data
   train_fraction: ??
   num_workers: ??
+  split:
+    manifest: configs/splits/cifar10_v1.json
+    version: v1
+    seed: 20261019
+#    TODO валидация значений, если числа больше размера выборки -> ошибка
+    train_size: 43000
+    val_size: 5000
+    cal_size: 2000
+    test_size: 10000
 
 model:
   name: small_cnn

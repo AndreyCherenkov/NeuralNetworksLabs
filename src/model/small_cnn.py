@@ -21,3 +21,5 @@ class SmallCnn(torch.nn.Module):
         x = self.fc3(x)
         return x
 
+def create_model() -> torch.nn.Module:
+    return SmallCnn()

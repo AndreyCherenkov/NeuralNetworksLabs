@@ -8,7 +8,7 @@ from torchvision.transforms import v2
 
 def create_cifar10(out_path: Path, is_train: bool) -> Dataset:
     transform = transforms.Compose([
-        v2.ToImage,
+        v2.ToImage(),
         v2.ToDtype(torch.float32, scale=True)
     ])
 

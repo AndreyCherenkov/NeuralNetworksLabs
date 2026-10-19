@@ -7,7 +7,7 @@ from torch import nn
 from core.config_resolver import resolve_config
 from core import seed
 from data.loaders import make_train_loader
-from model.model import init_model
+from model.loader import init_model
 
 
 def _read_config(
@@ -46,8 +46,6 @@ def _init_scheduler(config: dict[str, Any]):
         case _:
             raise ValueError(f"Unknown scheduler {name}")
 
-def _init_model(config: dict[str, Any]) -> torch.nn.Module:
-    return init_model(config)
 
 def _set_state(config: dict[str, Any], seed_increment: int = 0) -> None:
     seed.set_seed(config, seed_increment)
@@ -57,12 +55,11 @@ def _set_state(config: dict[str, Any], seed_increment: int = 0) -> None:
 def _train(cfg_path: Path):
     config = resolve_config(cfg_path)
 
-    _set_state(config)
+    _set_state(config) ##TODO не сбрасывает ли split состояние?
 
-    device = config["device"]["name"]
-    print(f"Using device: {device}") #TODO в логер
+    device = torch.device(config["device"]["name"])
 
-    model = init_model(config)
+    model = init_model(config).to(device)
     criterion = nn.CrossEntropyLoss()
     optimizer = _init_optimizer(config, model)
     #TODO scheduler
@@ -116,6 +113,5 @@ def main():
 
 if __name__ == "__main__":
     main()
-    #TODO args, dataloader registry, scheduler registry etc...
-
+    #TODO args, scheduler and optimizer registry
 

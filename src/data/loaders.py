@@ -29,14 +29,6 @@ def _make_dataset_dir(config: dict[str, Any], path: Path = _PROJECT_ROOT) -> Pat
     return dataset_path
 
 
-def _load_dataset(config: dict[str, Any], is_train: bool) -> Any:
-    name = config["data"]["name"]
-    root = _make_dataset_dir(config) / ("train" if is_train else "test")
-    print(f"Loading dataset '{name}' from '{root}'")
-    factory = get_dataset_factory(name)
-    return factory(root, is_train)
-
-
 # TODO workers
 # def seed_worker(worker_id):
 #     worker_seed = torch.initial_seed() % 2**32
@@ -57,6 +49,11 @@ def _init_generator(config: dict[str, Any]) -> torch.Generator:
     gen.manual_seed(config["experiment"]["seed"])  # TODO refactor
     return gen
 
+def load_dataset(config: dict[str, Any], is_train: bool) -> Any:
+    name = config["data"]["name"]
+    root = _make_dataset_dir(config) / ("train" if is_train else "test")
+    factory = get_dataset_factory(name)
+    return factory(root, is_train)
 
 def make_train_loader(config: dict[str, Any]) -> Any:
     gen = _init_generator(config)
@@ -65,7 +62,8 @@ def make_train_loader(config: dict[str, Any]) -> Any:
     if not (0.0 < train_fraction <= 1.0):
         raise ValueError(f"Train fraction must be between in (0.0, 1.0]. Actual: {train_fraction}")
 
-    train = _load_dataset(config, is_train=True)
+    train = load_dataset(config, is_train=True)
+    ##TODO split
 
     train_size = int(train_fraction * len(train))
     indices = torch.randperm(len(train), generator=gen)[:train_size].tolist()
@@ -73,7 +71,7 @@ def make_train_loader(config: dict[str, Any]) -> Any:
 
     train_loader = torch.utils.data.DataLoader(
         train_subset,
-        generator=gen
+        generator=gen,
     )
 
     return train_loader
@@ -81,7 +79,7 @@ def make_train_loader(config: dict[str, Any]) -> Any:
 
 def make_test_loader(config: dict[str, Any]) -> Any:
     gen = _init_generator(config)
-    test = _load_dataset(config, is_train=False)
+    test = load_dataset(config, is_train=False)
     test_loader = torch.utils.data.DataLoader(
         test,
         generator=gen

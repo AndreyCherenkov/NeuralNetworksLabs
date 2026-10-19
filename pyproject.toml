@@ -1,0 +1,60 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "nn-course"
+version = "0.1.0"
+description = "ЛР0: инфраструктура воспроизводимых экспериментов (Experiment Harness)"
+readme = "README.md"
+# Раздел 10: Python не ниже 3.11, PyTorch 2.x.
+requires-python = ">=3.11,<3.14"
+# Здесь — диапазоны совместимых версий. Точные версии всего дерева
+# фиксируются в lock-файле (uv.lock или requirements.lock), его hash
+# записывается в manifest каждого запуска.
+dependencies = [
+    "torch>=2.2,<3",
+    "torchvision>=0.17,<1",
+    "numpy>=1.26,<3",
+    "pyyaml>=6.0,<7",
+    "pydantic>=2.5,<3",       # схема и валидация resolved config
+    "matplotlib>=3.8,<4",     # plots/ и графики для отчёта (E2, E4)
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8,<9",
+    "ruff>=0.5",
+]
+# Внешние логгеры допустимы (раздел 18), но локальный metrics.jsonl обязателен.
+tracking = [
+    "tensorboard>=2.15,<3",
+]
+
+# Обязательный интерфейс запуска — `python -m src.<module>` (раздел 7),
+# поэтому импортируемый пакет называется именно `src`.
+[tool.setuptools.packages.find]
+include = ["src*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"
+markers = [
+    "slow: тесты с реальным обучением на нескольких шагах",
+    "cuda: требуют CUDA, пропускаются на CPU",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+# Сборки PyTorch с CUDA берутся из отдельного индекса. Раскомментируйте
+# и укажите версию CUDA, совместимую с драйвером (например, cu128).
+# [[tool.uv.index]]
+# name = "pytorch-cu128"
+# url = "https://download.pytorch.org/whl/cu128"
+# explicit = true
+#
+# [tool.uv.sources]
+# torch = { index = "pytorch-cu128" }
+# torchvision = { index = "pytorch-cu128" }

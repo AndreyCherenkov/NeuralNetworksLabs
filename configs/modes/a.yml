@@ -1,0 +1,8 @@
+experiment:
+  deterministic: true
+data:
+  num_workers: 0
+train:
+  amp: false
+device:
+  name: cpu

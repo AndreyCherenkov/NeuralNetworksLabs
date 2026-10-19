@@ -1,0 +1,41 @@
+experiment:
+  name: lab0_cifar10
+  seed: ??
+  deterministic: ??
+
+data:
+  name: cifar10
+  root: ./data
+  train_fraction: ??
+  num_workers: ??
+
+model:
+  name: small_cnn
+  width: ??
+  depth: ??
+
+optimizer:
+  name: ??
+  lr: 0.001
+  weight_decay: 0.0001
+
+scheduler:
+  name: ??
+  warmup_epochs: 1
+
+train:
+  epochs: 10
+  batch_size: ??
+  amp: ??
+
+device:
+  name: ??
+
+profiling:
+  batch_sizes:
+    - ??
+    - ??
+    - ??
+    - ??
+
+#TODO logging

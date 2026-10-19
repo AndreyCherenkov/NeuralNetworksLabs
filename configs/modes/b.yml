@@ -1,0 +1,3 @@
+device: 'cuda'
+deterministic: true
+amp: false

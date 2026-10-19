@@ -1,0 +1,3 @@
+device: 'cpu'
+deterministic: false
+amp: true

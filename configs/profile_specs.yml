@@ -1,0 +1,50 @@
+fields:
+  - field: profile.id
+    kind: prefix
+    prefix: P
+    slice: [0, 6]
+
+  - field: profile.id_hash
+    kind: hash
+
+  - field: profile.base_seed
+    kind: mod_number
+    slice: [0, 8]
+    mod: 2147483648  # 2**31
+
+  - field: data.train_fraction
+    kind: choice
+    slice: [8, 10]
+    choices: [0.1, 0.25, 0.5, 1.0]
+
+  - field: model.width
+    kind: choice
+    slice: [10, 12]
+    choices: [32, 64, 128, 256]
+
+  - field: model.depth
+    kind: choice
+    slice: [12, 14]
+    choices: [2, 3, 4, 6]
+
+  - field: train.batch_size
+    kind: choice
+    slice: [20, 22]
+    choices: [32, 64, 128, 256]
+
+  - field: optimizer.name
+    kind: choice
+    slice: [16, 18]
+    choices: [adamw, sgd]
+
+  - field: scheduler.name
+    kind: choice
+    slice: [14, 16]
+    choices: [cosine, step]
+
+  - field: profiling.batch_sizes
+    kind: choice
+    slice: [22, 24]
+    choices:
+      - [1, 8, 32, 128]
+      - [1, 16, 64, 256]

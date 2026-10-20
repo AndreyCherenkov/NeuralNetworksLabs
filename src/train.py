@@ -18,6 +18,7 @@ def _read_config(
 ) -> dict[str, Any]:
     return resolve_config(base_config)
 
+# TODO optimizer registry
 def _init_optimizer(config: dict[str, Any], model: torch.nn.Module) -> torch.optim.Optimizer:
     name = config["optimizer"]["name"]
     match name:
@@ -36,6 +37,7 @@ def _init_optimizer(config: dict[str, Any], model: torch.nn.Module) -> torch.opt
         case _:
             raise ValueError(f"Unknown optimizer {name}")
 
+# TODO schediler registry
 def _init_scheduler(config: dict[str, Any]):
     name = config["scheduler"]["name"]
     match name:
@@ -55,7 +57,7 @@ def _set_state(config: dict[str, Any], seed_increment: int = 0) -> None:
 def _train(cfg_path: Path):
     config = resolve_config(cfg_path)
 
-    _set_state(config) ##TODO не сбрасывает ли split состояние?
+    _set_state(config)
 
     device = torch.device(config["device"]["name"])
 
@@ -113,5 +115,5 @@ def main():
 
 if __name__ == "__main__":
     main()
-    #TODO args, scheduler and optimizer registry
+    #TODO args
 

@@ -63,6 +63,7 @@ def _generate_hex_hash(profile_id: str, encoding='utf-8') -> str:
     return hashlib.sha256(profile_id.encode(encoding=encoding)).hexdigest()
 
 
+# TODO delete?
 def profile_fields(specification: dict) -> frozenset[str]:
     return frozenset(rule["field"] for rule in specification["fields"])
 
@@ -80,7 +81,7 @@ def generate_profile(h: str, out_path: Path, specification_path: Path) -> None:
         yaml.dump(data, f, allow_unicode=True, sort_keys=False)
 
 
-if __name__ == '__main__':
+def main():
     parser = argparse.ArgumentParser(description='Generate a profile file')
     parser.add_argument('--id', required=True, type=str)
     parser.add_argument('--out', required=False, type=str, default=None)
@@ -91,3 +92,6 @@ if __name__ == '__main__':
     specs_path = args.specs or f'./configs/profile_specs.yml'
     out_path = args.out or f'./configs/profiles/{hex_hash}.yml'
     generate_profile(hex_hash, Path(out_path), Path(specs_path))
+
+if __name__ == '__main__':
+    main()

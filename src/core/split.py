@@ -17,4 +17,5 @@ def get_split_data_indexes(cfg: dict[str, Any], labels: list[Any]) -> dict[str, 
         out["val"] += idx[:n_val].tolist()
         out["cal"] += idx[n_val:n_val + n_cal].tolist()
         out["train"] += idx[n_val + n_cal:].tolist()
+
     return {k: sorted(v) for k, v in out.items()}

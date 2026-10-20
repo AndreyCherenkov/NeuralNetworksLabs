@@ -4,6 +4,7 @@ from typing import Any
 import torch
 from torch.utils.data import Subset
 
+from core.manifest_resolver import load_split_manifest
 from data.registry import get_dataset_factory
 
 _DATASETS = (
@@ -11,6 +12,13 @@ _DATASETS = (
 )
 
 _PROJECT_ROOT = Path(__file__).resolve().parents[2]
+
+
+def _make_subset(cfg: dict[str, Any], split: str) -> Subset:
+    manifest = load_split_manifest(cfg)
+    indices = manifest["indices"][split]
+
+    return Subset(load_dataset(cfg, split == "train"), indices)
 
 
 def _make_dataset_dir(config: dict[str, Any], path: Path = _PROJECT_ROOT) -> Path:
@@ -49,34 +57,40 @@ def _init_generator(config: dict[str, Any]) -> torch.Generator:
     gen.manual_seed(config["experiment"]["seed"])  # TODO refactor
     return gen
 
+
 def load_dataset(config: dict[str, Any], is_train: bool) -> Any:
     name = config["data"]["name"]
     root = _make_dataset_dir(config) / ("train" if is_train else "test")
     factory = get_dataset_factory(name)
     return factory(root, is_train)
 
+
 def make_train_loader(config: dict[str, Any]) -> Any:
     gen = _init_generator(config)
-    train_fraction = config["data"]["train_fraction"]
+    subset = _make_subset(config, split="train")
 
+    train_fraction = config["data"]["train_fraction"]
     if not (0.0 < train_fraction <= 1.0):
         raise ValueError(f"Train fraction must be between in (0.0, 1.0]. Actual: {train_fraction}")
 
-    train = load_dataset(config, is_train=True)
-    ##TODO split
+    train_size = int(train_fraction * len(subset))
 
-    train_size = int(train_fraction * len(train))
-    indices = torch.randperm(len(train), generator=gen)[:train_size].tolist()
-    train_subset = Subset(train, indices)
+    selected = torch.randperm(
+        len(subset),
+        generator=gen,
+    )[:train_size].tolist()
 
-    train_loader = torch.utils.data.DataLoader(
-        train_subset,
+    subset = Subset(
+        subset.dataset,
+        [subset.indices[i] for i in selected],
+    )
+
+    return torch.utils.data.DataLoader(
+        subset,
         generator=gen,
     )
 
-    return train_loader
-
-
+#TODO split
 def make_test_loader(config: dict[str, Any]) -> Any:
     gen = _init_generator(config)
     test = load_dataset(config, is_train=False)

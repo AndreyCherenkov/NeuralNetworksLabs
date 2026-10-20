@@ -5,7 +5,7 @@ from pathlib import Path
 import yaml
 
 from data.loaders import load_dataset
-from data.split import get_split_data_indexes
+from core.split import get_split_data_indexes
 
 _ROOT_DIR = Path(__file__).resolve().parents[1]
 

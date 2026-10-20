@@ -3,6 +3,10 @@ experiment:
   seed: ??
   deterministic: ??
 
+profile:
+  id: ??
+  id_hash: ??
+
 data:
   name: cifar10
   root: ./data

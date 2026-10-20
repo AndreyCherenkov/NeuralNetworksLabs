@@ -10,8 +10,10 @@ readme = "README.md"
 # Раздел 10: Python не ниже 3.11, PyTorch 2.x.
 requires-python = ">=3.11,<3.14"
 # Здесь — диапазоны совместимых версий. Точные версии всего дерева
-# фиксируются в lock-файле (uv.lock или requirements.lock), его hash
+# фиксируются в requirements.lock и conda-explicit.txt, их hash
 # записывается в manifest каждого запуска.
+# torch/torchvision ставятся из индекса https://download.pytorch.org/whl/cu128;
+# CUDA-сборка работает и на CPU, устройство выбирается полем device в конфиге.
 dependencies = [
     "torch>=2.2,<3",
     "torchvision>=0.17,<1",
@@ -48,13 +50,11 @@ markers = [
 line-length = 100
 target-version = "py311"
 
-# Сборки PyTorch с CUDA берутся из отдельного индекса. Раскомментируйте
-# и укажите версию CUDA, совместимую с драйвером (например, cu128).
-# [[tool.uv.index]]
-# name = "pytorch-cu128"
-# url = "https://download.pytorch.org/whl/cu128"
-# explicit = true
-#
-# [tool.uv.sources]
-# torch = { index = "pytorch-cu128" }
-# torchvision = { index = "pytorch-cu128" }
+# Целевое окружение (раздел 10): с чем эксперименты ДОЛЖНЫ запускаться.
+# Записывается в manifest как declared и сверяется с фактическим окружением.
+# cuda — версия CUDA, с которой собран torch ("none" для CPU-сборки),
+# а не устройство конкретного запуска.
+[tool.harness.target]
+python = "3.12"
+torch  = "2.14.1"
+cuda   = "12.8"

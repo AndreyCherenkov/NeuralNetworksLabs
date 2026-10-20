@@ -7,54 +7,6 @@ import yaml
 
 _UNKNOWN_PLACEHOLDER = "??"
 
-
-def _read_yaml(path: Path, encoding: str = "utf-8") -> dict[str, Any]:
-    return yaml.safe_load(path.read_text(encoding=encoding))
-
-
-def _deep_merge(
-        base: Mapping[str, Any],
-        override: Mapping[str, Any],
-) -> dict[str, Any]:
-    result = deepcopy(dict(base))
-    for key, value in override.items():
-        if key not in result:
-            continue
-        current = result[key]
-        if isinstance(current, Mapping) and isinstance(value, Mapping):
-            result[key] = _deep_merge(current, value)
-        else:
-            result[key] = deepcopy(value)
-    return result
-
-
-def _profile_extra(
-        base: dict[str, Any],
-        override: Mapping[str, Any],
-) -> dict[str, Any]:
-    result = deepcopy(base)
-    result["experiment"]["seed"] = override["profile"]["base_seed"]
-    return result
-
-
-def _resolve_config(
-        base_config: dict[str, Any],
-        profile: dict[str, Any],
-        mode: dict[str, Any],
-) -> dict[str, Any]:
-    base_config = _deep_merge(base_config, profile)
-    base_config = _deep_merge(base_config, mode)
-    base_config = _profile_extra(base_config, profile)
-
-    return base_config
-
-
-def _save_config(resolved_config: dict[str, Any], out_path: Path) -> None:
-    out_path.parent.mkdir(parents=True, exist_ok=True)
-    with out_path.open("w", encoding="utf-8") as f:
-        yaml.dump(resolved_config, f, allow_unicode=True, sort_keys=False)
-
-
 def resolve_config(
         base_config: Path,
         profile_path: Path | None = None,
@@ -93,3 +45,50 @@ def resolve_config(
     _save_config(resolved, out_path)
 
     return resolved
+
+def _read_yaml(path: Path, encoding: str = "utf-8") -> dict[str, Any]:
+    return yaml.safe_load(path.read_text(encoding=encoding))
+
+
+def _deep_merge(
+        base: Mapping[str, Any],
+        override: Mapping[str, Any],
+) -> dict[str, Any]:
+    result = deepcopy(dict(base))
+    for key, value in override.items():
+        if key not in result:
+            continue
+        current = result[key]
+        if isinstance(current, Mapping) and isinstance(value, Mapping):
+            result[key] = _deep_merge(current, value)
+        else:
+            result[key] = deepcopy(value)
+    return result
+
+##TODO КОСТЫЛЬ, ВЫПИЛИТЬ
+def _profile_extra(
+        base: dict[str, Any],
+        override: Mapping[str, Any],
+) -> dict[str, Any]:
+    result = deepcopy(base)
+    result["experiment"]["seed"] = override["profile"]["base_seed"]
+    return result
+
+
+def _resolve_config(
+        base_config: dict[str, Any],
+        profile: dict[str, Any],
+        mode: dict[str, Any],
+) -> dict[str, Any]:
+    base_config = _deep_merge(base_config, profile)
+    base_config = _deep_merge(base_config, mode)
+    base_config = _profile_extra(base_config, profile)
+
+    return base_config
+
+
+def _save_config(resolved_config: dict[str, Any], out_path: Path) -> None:
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    with out_path.open("w", encoding="utf-8") as f:
+        yaml.dump(resolved_config, f, allow_unicode=True, sort_keys=False)
+
